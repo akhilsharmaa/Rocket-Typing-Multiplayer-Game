@@ -1,0 +1,65 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+
+    <title>Typer</title>
+</head>
+
+<body>
+  
+    <div class="circle">
+        <div id="countdown">00</div>
+    </div>
+
+  <div class="container-wrapper">
+
+      <div class="justify_wrapper"> 
+        <button class="button-28" role="button">MULTIPLAYER</button>
+      </div>
+
+
+      <div class="container">
+        <div class="textContent leftText" id="typedText"></div>
+        <div id="pointer"></div>
+        <div class="textContent rightText" id="ToTypeText">This_is_a_sample_Text_Just_for_testing_don't_reinvent_the_wheel_just_improve_it.</div>
+      </div>
+
+      <div class="center_wrapper"> 
+          <div id="key_to_press_box">T</div>
+      </div>
+
+      <%- include('../views/elements/multiplayerBox'); %>
+
+      <div class="info_container">
+
+        <div class="score-card">
+          <div class="score-block-content">
+            <div class="score-plan">SCORE</div>
+            <div id="score-number">0</div>
+          </div>
+        </div>
+
+        <div class="wpm_accuracy_container">
+          <dir> CURRENT WPM: <span  id="wpm_text" class="wpm_accuracy_value">0.0 </span></dir>
+          <div class="break-line"></div>
+          <dir> ACCURACY: <span id="accuracy_text" class="wpm_accuracy_value"> 0.00 </span>% </dir>
+        </div>
+        
+      </div>
+
+      
+  </div>
+  
+  <script src="script.js"></script>
+
+</body>
+</html>
