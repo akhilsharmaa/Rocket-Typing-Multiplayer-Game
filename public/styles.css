@@ -237,17 +237,14 @@ body {
     white-space: nowrap;
     display: inline-block;
     text-align: center;
-    /* padding: 2rem 2rem; */
     font-family: 'Orbitron', sans-serif;
 }
 
-
-
-
  
-.wrapper_add_player_container{
+#wrapper_add_player_container{
+
+    display: none;
     position: fixed;
-    display: flex;
     width: 100vw;
     height: 100vh;
     top: 0;

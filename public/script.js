@@ -169,3 +169,14 @@ function startCountdown(initialTime) {
   function hideStartButton(){
 
   }
+
+  function closeMultiplayerWindow(){
+
+    var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
+    wrapper_add_player_container.style.display = "none";
+  }
+
+  function openMultiplayerWindow(){
+    var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
+    wrapper_add_player_container.style.display = "flex";
+  }
