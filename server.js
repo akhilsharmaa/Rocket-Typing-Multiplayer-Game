@@ -18,11 +18,14 @@ app.set('views', __dirname + '/views'); // Set the views directory
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
+
 // ------------ SOCKET -------------------------------
 
 io.on('connection', (socket) => {
 
   console.log('a user connected', socket.id);
+
+  io.emit("newUserJoined", " " + socket.id); 
 
   socket.on('disconnect', () => {
       console.log('A user disconnected');
