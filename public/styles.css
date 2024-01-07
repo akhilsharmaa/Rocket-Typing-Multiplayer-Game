@@ -397,8 +397,9 @@ body {
   /* background-color: #422800; */
 }
 
-.createRoomContainer {
-  width: 60%;
+#createRoomContainer{
+    width: 60%;
+    /* background-color: #ff9900; */
 }
 
 .joinRoomContainer {

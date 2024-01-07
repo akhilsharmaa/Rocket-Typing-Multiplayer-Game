@@ -1,3 +1,5 @@
+const socket = io();
+
 // Variables to keep track of game state
 var wordCount = 0;
 var letterCount = 0;
@@ -167,7 +169,7 @@ function startCountdown(initialTime) {
   }
 
   function hideStartButton(){
-
+    
   }
 
   function closeMultiplayerWindow(){
@@ -181,5 +183,67 @@ function startCountdown(initialTime) {
   }
 
 
+  createRoomContainer = document.getElementById('createRoomContainer');
 
-  const socket = io();
+
+
+
+
+
+// ----------------------  SOCKET    --------------------------
+
+  socket.on('newUserJoined', (msg) => {
+    // const item = document.createElement('li');
+    // item.textContent = msg;
+    // createRoomContainer.appendChild(item);
+    // window.scrollTo(0, document.body.scrollHeight);
+    
+        const container = document.createElement('div');
+        container.innerHTML = template.replace("<%=  include('./playerCard1.ejs', { playerName: 'Akhilesh' }); %>");
+        
+        // Append the container to createRoomContainer
+        document.getElementById('createRoomContainer').appendChild(container.firstChild);
+
+        // Scroll to the bottom
+        window.scrollTo(0, document.body.scrollHeight);
+
+  });
+
+
+// Sample data
+var playersData = [
+    { playerName: 'Rishu Sharma', imageUrl: 'https://img.freepik.com/premium-vector/avatar-man_195186-2753.jpg?w=360' },
+    // Add more players as needed
+];
+
+// Function to create and append player boxes
+function createPlayerBox(playerData) {
+    // Create elements
+    var playerBox = document.createElement('div');
+    playerBox.classList.add('playerBox');
+
+    var box89 = document.createElement('div');
+    box89.classList.add('box89');
+
+    var playerImage = document.createElement('img');
+    playerImage.classList.add('player_logo_image');
+    playerImage.src = playerData.imageUrl;
+    playerImage.alt = 'Player Image';
+
+    var playerName = document.createElement('div');
+    playerName.classList.add('playername');
+    playerName.textContent = playerData.playerName;
+
+    // Append elements to the player box
+    box89.appendChild(playerImage);
+    playerBox.appendChild(box89);
+    playerBox.appendChild(playerName);
+
+    // Append the player box to the container
+    document.getElementById('playerContainer').appendChild(playerBox);
+}
+
+        // Loop through the data and create player boxes
+        playersData.forEach(function(player) {
+            createPlayerBox(player);
+        });
