@@ -171,7 +171,6 @@ function startCountdown(initialTime) {
   }
 
   function closeMultiplayerWindow(){
-
     var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
     wrapper_add_player_container.style.display = "none";
   }
@@ -180,3 +179,7 @@ function startCountdown(initialTime) {
     var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
     wrapper_add_player_container.style.display = "flex";
   }
+
+
+
+  const socket = io();
