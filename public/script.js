@@ -1,4 +1,6 @@
 const socket = io();
+var socketConnection = io.connect();
+
 
 // Variables to keep track of game state
 var wordCount = 0;
@@ -8,6 +10,8 @@ var isStarted = false;
 var isMultiplayer = false;
 var noOfsecondPassed = 0;
 var numberOfSecondToCompete = 20;
+var socket_id = "NULL";
+var room_id = "NULL";
 
 // Get HTML elements
 var un_typedTextElement = document.getElementById('ToTypeText');
@@ -28,7 +32,7 @@ var ooops_sound = new Audio('./res/ooops.mp3');
 let stringLenght = un_typedTextElement.innerHTML;
 let arrayOfIntegers = new Array(stringLenght.length).fill(1);
 
-
+regenrateRoomID(); 
 countdownElement.innerHTML = numberOfSecondToCompete;
 
 // Event listener for keydown
@@ -77,6 +81,9 @@ document.addEventListener('keydown', function (event) {
     wpm_text.innerHTML =  findWPM(noOfsecondPassed, wordCount).toFixed(2); // Update accuracy
     score_number.innerHTML = scoreCount;
 });
+
+
+
 
 // Function to calculate accuracy
 function findAccuarcy() {
@@ -129,37 +136,61 @@ function deleteFirstCharacter() {
 
 
 
+function joinMatch(){
+
+      var roomIdTextInputText = document.getElementById('roomIdTextInput').value;
+      var nameTextInputText = document.getElementById('nameTextInput').value;
+
+      hideJoinMatchTab();
+      showWatingPlayersTab();
+      setUserSocketID();
+
+      room_id = roomIdTextInputText;
+      var roomID_Div = document.getElementById('roomIDTextSpan');
+      roomID_Div.innerHTML = room_id;
+     
+}
+
+
+socketConnection.on('connect', function() {
+    socket_id = socketConnection.socket.sessionid; //
+    console.log(socket_id);
+    setUserSocketID();
+});
+
+
+
 function startCountdown(initialTime) {
 
       var timeleft = initialTime;
 
       var downloadTimer = setInterval(function(){
 
-      if(timeleft <= 0){
-        clearInterval(downloadTimer);
-        countdownElement.innerHTML = "00";
-      } else {
-        countdownElement.innerHTML = timeleft ;
-      }
+          if(timeleft <= 0){
+            clearInterval(downloadTimer);
+            countdownElement.innerHTML = "00";
+          } else {
+            countdownElement.innerHTML = timeleft ;
+          }
 
-      if(timeleft == 1){
-        timup_sound.play();
-        
-      }else if(timeleft <= 5){
-        // countdownElement.style.color = "#f00";
-        tick_2x_sound.play();
+          if(timeleft == 1){
+            timup_sound.play();
+            
+          }else if(timeleft <= 5){
+            // countdownElement.style.color = "#f00";
+            tick_2x_sound.play();
 
-      }else if(timeleft == 10){
-        countdownElement.style.color = "#fcd703";
-        tick_2x_sound.play();
+          }else if(timeleft == 10){
+            countdownElement.style.color = "#fcd703";
+            tick_2x_sound.play();
 
-      }else {
-        tick_sound.play();
-      }
+          }else {
+            tick_sound.play();
+          }
 
 
-      timeleft -= 1;
-      noOfsecondPassed += 1;
+          timeleft -= 1;
+          noOfsecondPassed += 1;
     }, 1000);
   }
   
@@ -172,78 +203,101 @@ function startCountdown(initialTime) {
     
   }
 
-  function closeMultiplayerWindow(){
-    var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
-    wrapper_add_player_container.style.display = "none";
-  }
 
   function openMultiplayerWindow(){
-    var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
-    wrapper_add_player_container.style.display = "flex";
+      var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
+      wrapper_add_player_container.style.display = "flex";
+      regenrateRoomID();
   }
 
 
   createRoomContainer = document.getElementById('createRoomContainer');
 
 
-
-
-
-
 // ----------------------  SOCKET    --------------------------
 
   socket.on('newUserJoined', (msg) => {
-    // const item = document.createElement('li');
-    // item.textContent = msg;
-    // createRoomContainer.appendChild(item);
-    // window.scrollTo(0, document.body.scrollHeight);
-    
-        const container = document.createElement('div');
-        container.innerHTML = template.replace("<%=  include('./playerCard1.ejs', { playerName: 'Akhilesh' }); %>");
-        
-        // Append the container to createRoomContainer
-        document.getElementById('createRoomContainer').appendChild(container.firstChild);
 
-        // Scroll to the bottom
-        window.scrollTo(0, document.body.scrollHeight);
+        socket_id = msg;
+        // createPlayerBox(playersData)
+        setUserSocketID();
 
   });
+  
+
+// document.getElementById('createJoinForm').addEventListener('submit', function(event) {
+//   event.preventDefault();
+// });
 
 
-// Sample data
-var playersData = [
-    { playerName: 'Rishu Sharma', imageUrl: 'https://img.freepik.com/premium-vector/avatar-man_195186-2753.jpg?w=360' },
-    // Add more players as needed
-];
+function regenrateRoomID(){
+  var roomIdTextInput = document.getElementById('roomIdTextInput');
+  roomIdTextInput.value =  generateRandomString(6);
+}
+
+function setUserSocketID(){ 
+  var socketId_TextInput = document.getElementById('socketId_TextInput');     
+  socketId_TextInput.value = socket_id;
+}
+
+function hideWatingPlayersTab(){
+  var watingPlayersTab = document.getElementById('watingPlayersTab');
+  watingPlayersTab.style.display = "none";
+}
+
+function showWatingPlayersTab(){
+  var watingPlayersTab = document.getElementById('watingPlayersTab');
+  watingPlayersTab.style.display = "flex";
+}
+
+function hideJoinMatchTab(){
+  var joinRoomContainer = document.getElementById('joinRoomContainer');
+  joinRoomContainer.style.display = "none";
+}
+
+function closeMultiplayerWindow(){
+  var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
+  wrapper_add_player_container.style.display = "none";
+}
+
+
 
 // Function to create and append player boxes
 function createPlayerBox(playerData) {
-    // Create elements
-    var playerBox = document.createElement('div');
-    playerBox.classList.add('playerBox');
+  // Create elements
+  var playerBox = document.createElement('div');
+  playerBox.classList.add('playerBox');
 
-    var box89 = document.createElement('div');
-    box89.classList.add('box89');
+  var box89 = document.createElement('div');
+  box89.classList.add('box89');
 
-    var playerImage = document.createElement('img');
-    playerImage.classList.add('player_logo_image');
-    playerImage.src = playerData.imageUrl;
-    playerImage.alt = 'Player Image';
+  var playerImage = document.createElement('img');
+  playerImage.classList.add('player_logo_image');
+  playerImage.src = playerData.imageUrl;
+  playerImage.alt = 'Player Image';
 
-    var playerName = document.createElement('div');
-    playerName.classList.add('playername');
-    playerName.textContent = playerData.playerName;
+  var playerName = document.createElement('div');
+  playerName.classList.add('playername');
+  playerName.textContent = playerData.playerName;
 
-    // Append elements to the player box
-    box89.appendChild(playerImage);
-    playerBox.appendChild(box89);
-    playerBox.appendChild(playerName);
+  // Append elements to the player box
+  box89.appendChild(playerImage);
+  playerBox.appendChild(box89);
+  playerBox.appendChild(playerName);
 
-    // Append the player box to the container
-    document.getElementById('playerContainer').appendChild(playerBox);
+  // Append the player box to the container
+  // document.getElementById('players').appendChild(playerBox);
 }
 
-        // Loop through the data and create player boxes
-        playersData.forEach(function(player) {
-            createPlayerBox(player);
-        });
+
+function generateRandomString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = '';
+
+  for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      randomString += characters.charAt(randomIndex);
+  }
+
+  return randomString;
+}

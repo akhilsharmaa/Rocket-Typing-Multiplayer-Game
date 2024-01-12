@@ -6,11 +6,17 @@
             
             <div class="box2">
 
-                <div id="createRoomContainer"> 
+                <div id="watingPlayersTab"> 
 
-                    <div class="roomID">Room ID:  <span class="">21sdfs</span> </div>
+                    <div class="box199">
+                        <img id="img12" src="https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif" alt="">
+                        <span> Waiting for more players to join...</span>
+                    </div>
+                    
+                    <div class="RoomID_DIV" >Room ID:  <span id="roomIDTextSpan">21sdfs</span> <img src="" alt=""> </div>
+                    
 
-                    <div class="players">
+                    <div id="playersTab">
 
                         <div class="playerBox">
                             <div class="box89">
@@ -22,23 +28,85 @@
                                 Rishu Sharma
                             </div>
                         </div>
+
+
+                        <div class="playerBox">
+                            <div class="box89">
+                                <img class="player_logo_image"
+                                    src="https://img.freepik.com/premium-vector/avatar-man_195186-2753.jpg?w=360"
+                                    alt="">
+                            </div>
+                            <div class="playername">
+                                Rishu Sharma
+                            </div>
+                        </div>
+
+
+                        <div class="playerBox">
+                            <div class="box89">
+                                <img class="player_logo_image"
+                                    src="https://img.freepik.com/premium-vector/avatar-man_195186-2753.jpg?w=360"
+                                    alt="">
+                            </div>
+                            <div class="playername">
+                                Rishu Sharma
+                            </div>
+                        </div>
+
+
+                        <div class="playerBox">
+                            <div class="box89">
+                                <img class="player_logo_image"
+                                    src="https://img.freepik.com/premium-vector/avatar-man_195186-2753.jpg?w=360"
+                                    alt="">
+                            </div>
+                            <div class="playername">
+                                Rishu Sharma
+                            </div>
+                        </div>
+
+
+                        <div class="playerBox">
+                            <div class="box89">
+                                <img class="player_logo_image"
+                                    src="https://cdn.dribbble.com/users/493970/screenshots/1691794/progress.gif"
+                                    alt="">
+                            </div>
+                            <div class="playername">
+
+                            </div>
+                        </div>
+
+
+
+                        <button  id="startMatch" class="button399" role="button">START</button>
+
                     </div>
-                    
-                    <button  class="start_multiplayer_button" role="button">START</button>
+                
                 </div>
                 
-                <div class="joinRoomContainer">
-                    <div class="roomID">Join a Room</div>
-                    <div class="joinInput">
-                        <input type="text" placeholder="Enter room code">
-                        <button id="join-btn">JOIN MATCH</button>
-                    </div>
-                </div>
+                <div id="joinRoomContainer">
 
+                    <div class="roomID">Create/Join a Room</div>
+
+                    <form id="createJoinForm" class="joinInput" action="/room" method="post">
+                        <div class="box31">
+                            <input id="roomIdTextInput" name="roomIdTextInput" type="text" placeholder="Enter room code">
+                            <img class="regenrateRoomIDButton" onclick="regenrateRoomID()" src="https://static.thenounproject.com/png/1921206-200.png" alt="">
+                        </div>                        
+                        <input id="nameTextInput"  name="nameTextInput" type="text" placeholder="Your Avatar Name">
+                        
+                            <input id="socketId_TextInput" name="socketId_TextInput" type="text" >
+                            <br>
+                        <button class="button399" onclick="joinMatch()" id="join-btn">JOIN MATCH</button>
+                    </form>
+
+                </div>
 
             <div class="center">
 
             </div>
+        </div>
 
     </div>
 </div>
