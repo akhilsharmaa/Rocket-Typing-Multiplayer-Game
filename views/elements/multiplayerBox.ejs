@@ -1,115 +1,62 @@
+<div id="wrapper_add_player_container">
+    <!-- Main container -->
 
-<div id="wrapper_add_player_container"> 
     <div class="add_player_container">
+        <!-- Container for adding players -->
 
-            <img onclick="closeMultiplayerWindow()" class="close_icon" src="https://cdn-icons-png.flaticon.com/512/57/57165.png" alt="">
-            
-            <div class="box2">
+        <img onclick="closeMultiplayerWindow()" class="close_icon" src="https://cdn-icons-png.flaticon.com/512/57/57165.png" alt="Close Icon">
 
-                <div id="watingPlayersTab"> 
+        <div class="box2">
+            <!-- Box2 container -->
 
-                    <div class="box199">
-                        <img id="img12" src="https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif" alt="">
-                        <span> Waiting for more players to join...</span>
-                    </div>
-                    
-                    <div class="RoomID_DIV" >Room ID:  <span id="roomIDTextSpan">21sdfs</span> <img src="" alt=""> </div>
-                    
-
-                    <div id="playersTab">
-
-                        <div class="playerBox">
-                            <div class="box89">
-                                <img class="player_logo_image"
-                                    src="https://img.freepik.com/premium-vector/avatar-man_195186-2753.jpg?w=360"
-                                    alt="">
-                            </div>
-                            <div class="playername">
-                                Rishu Sharma
-                            </div>
-                        </div>
-
-
-                        <div class="playerBox">
-                            <div class="box89">
-                                <img class="player_logo_image"
-                                    src="https://img.freepik.com/premium-vector/avatar-man_195186-2753.jpg?w=360"
-                                    alt="">
-                            </div>
-                            <div class="playername">
-                                Rishu Sharma
-                            </div>
-                        </div>
-
-
-                        <div class="playerBox">
-                            <div class="box89">
-                                <img class="player_logo_image"
-                                    src="https://img.freepik.com/premium-vector/avatar-man_195186-2753.jpg?w=360"
-                                    alt="">
-                            </div>
-                            <div class="playername">
-                                Rishu Sharma
-                            </div>
-                        </div>
-
-
-                        <div class="playerBox">
-                            <div class="box89">
-                                <img class="player_logo_image"
-                                    src="https://img.freepik.com/premium-vector/avatar-man_195186-2753.jpg?w=360"
-                                    alt="">
-                            </div>
-                            <div class="playername">
-                                Rishu Sharma
-                            </div>
-                        </div>
-
-
-                        <div class="playerBox">
-                            <div class="box89">
-                                <img class="player_logo_image"
-                                    src="https://cdn.dribbble.com/users/493970/screenshots/1691794/progress.gif"
-                                    alt="">
-                            </div>
-                            <div class="playername">
-
-                            </div>
-                        </div>
-
-
-
-                        <button  id="startMatch" class="button399" role="button">START</button>
-
-                    </div>
-                
+            <!-- Waiting Players Tab -->
+            <div id="watingPlayersTab">
+                <div class="box199">
+                    <!-- Loading animation and message -->
+                    <img id="img12" src="https://i.gifer.com/origin/34/34338d26023e5515f6cc8969aa027bca.gif" alt="Loading Icon">
+                    <span> Waiting for more players...</span>
                 </div>
-                
-                <div id="joinRoomContainer">
 
-                    <div class="roomID">Create/Join a Room</div>
-
-                    <form id="createJoinForm" class="joinInput" action="/room" method="post">
-                        <div class="box31">
-                            <input id="roomIdTextInput" name="roomIdTextInput" type="text" placeholder="Enter room code">
-                            <img class="regenrateRoomIDButton" onclick="regenrateRoomID()" src="https://static.thenounproject.com/png/1921206-200.png" alt="">
-                        </div>                        
-                        <input id="nameTextInput"  name="nameTextInput" type="text" placeholder="Your Avatar Name">
-                        
-                            <input id="socketId_TextInput" name="socketId_TextInput" type="text" >
-                            <br>
-                        <button class="button399" onclick="joinMatch()" id="join-btn">JOIN MATCH</button>
-                    </form>
-
+                <div class="RoomID_DIV">
+                    <!-- Room ID display -->
+                    Room ID: <span id="roomIDTextSpan">21sdfs</span> <img src="" alt="">
                 </div>
+
+                <div id="playersTab">
+                    <!-- Display players and start button -->
+                    <div class="playerBox">
+                        <img class="player_logo_image" src="https://img.freepik.com/premium-vector/avatar-man_195186-2753.jpg?w=360" alt="Player Avatar">
+                        <div class="playername">Rishu Sharma</div>
+                    </div>
+
+                    <div class="playerBox">
+                        <img class="player_logo_image" src="https://cdn.dribbble.com/users/493970/screenshots/1691794/progress.gif" alt="Player Avatar">
+                        <div class="playername"><!-- Player name goes here --></div>
+                    </div>
+
+                    <button id="startMatch" class="button399" role="button">START</button>
+                </div>
+            </div>
+
+            <!-- Join Room Container -->
+            <div id="joinRoomContainer">
+                <div class="roomID">Create/Join a Room</div>
+                <div id="createJoinForm" class="joinInput">
+                    <div class="box31">
+                        <input id="roomIdTextInput" name="roomIdTextInput" type="text" placeholder="Enter room code">
+                        <img class="regenrateRoomIDButton" onclick="regenrateRoomID()" src="https://static.thenounproject.com/png/1921206-200.png" alt="Regenerate Room ID">
+                    </div>
+                    <input id="nameTextInput" name="nameTextInput" type="text" placeholder="Your Avatar Name">
+                    <input id="socketId_TextInput" name="socketId_TextInput" type="text">
+                    <br>
+                    <button class="button399" onclick="joinMatch()" id="join-btn">JOIN MATCH</button>
+                </div>
+            </div>
 
             <div class="center">
-
+                <!-- Center container (modify as needed) -->
             </div>
         </div>
 
     </div>
 </div>
-
-
-<!-- HTML !-->
