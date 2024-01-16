@@ -1,25 +1,21 @@
-# Typing Multiplayer Game
+# Rocket-Typing Multiplayer Game
+This project is a Typing Multiplayer Game built using **Node.js, Express, and Socket.IO.** It allows multiple users to join a room, type messages, and interact in real-time.
 
-## Overview
-This project is a Typing Multiplayer Game built using Node.js, Express, and Socket.IO. It allows multiple users to join a room, type messages, and interact in real-time.
-
-## Features
+### Features
 - Multiplayer Typing Game
-- Real-time Communication using Socket.IO
+- Track typing **Accuracy & WPM.**
+- **Real-time** Communication using Socket.IO
 - Dynamic Avatar Assignment for Users
-- User Score Tracking
-- Room Creation and Joining
+- User Score Tracking Real-Time
+- Socket Rooms Creation and Joining & Managing
 
-## Technologies Used
-- Node.js
-- Express
-- Socket.IO
-- EJS (View Engine)
-- Body Parser
+## How to Play
+1. Access the game in a web browser.
+2. Join or create a room.
+3. Start typing when the game begins.
+4. Interact with other players in real-time.
+5. Have fun and improve your typing skills!
 
-## Prerequisites
-- Node.js installed
-- npm package manager
 
 ## Installation
 1. Clone the repository: `git clone <repository-url>`
@@ -31,30 +27,17 @@ This project is a Typing Multiplayer Game built using Node.js, Express, and Sock
 2. Open a web browser and go to `http://localhost:3000`
 3. Interact with the Typing Multiplayer Game
 
-## Configuration
-- The server runs on port 3000 by default. You can change it in the `PORT` constant in the code.
-
 ## Project Structure
 - `public/`: Static assets (CSS, client-side JavaScript)
 - `views/`: EJS templates
 - `index.js`: Main server file
 
-## How to Play
-1. Access the game in a web browser.
-2. Join or create a room.
-3. Start typing when the game begins.
-4. Interact with other players in real-time.
-5. Have fun and improve your typing skills!
-
-## Contributing
+## Contributing 
 1. Fork the repository
 2. Create a new branch: `git checkout -b feature-name`
 3. Make your changes and commit: `git commit -m 'Description of changes'`
 4. Push to the branch: `git push origin feature-name`
 5. Create a pull request
-
-## License
-This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgments
 - Thanks to [Socket.IO](https://socket.io/) for real-time communication.
