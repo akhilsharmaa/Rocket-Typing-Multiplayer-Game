@@ -138,7 +138,7 @@ app.get('/', (req, res) => {
 
 server.listen(PORT, () => {
   
-  colog.log(colog.backgroundGreen('    🦊 server running at http://localhost:3000    '));
+  colog.log(colog.backgroundGreen('\n\t🦊 server running at http://localhost:3000\t'));
 
 
 });

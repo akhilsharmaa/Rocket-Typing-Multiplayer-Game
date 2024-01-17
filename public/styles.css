@@ -520,11 +520,11 @@ body {
 }
 
 #startMatch{
-     margin: 1rem;
+      margin: 1rem;
       position: absolute;
       display: flex;
-      bottom: 0;
-      right: 0;
+      bottom: 1rem;
+      right: 1rem;
 }
 
 #roomIdTextInput, #nameTextInput{ 
@@ -539,4 +539,74 @@ body {
 
 #nameTextInput{
   font-size: 1.2rem;
+}
+
+
+
+
+
+
+
+
+/* avatar_logo2 */
+
+.live_player_status_container{
+    width: 20rem;
+    user-select: none;
+}
+
+.live_player_box{
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    /* background-color: #ffffff2a; */
+    /* border-radius: 0.5rem; */
+    border-top: 1px solid rgba(255, 255, 255, 0.196);
+}
+
+.scoreText{
+    font-weight: 700;
+    color: #00ff77;
+}
+
+.avatar_logo_live{
+    height: 2.5rem;
+    width: 2.5rem;
+    object-fit: fill;
+    padding: 0.4rem 0.5rem;
+    border-radius: 1rem;
+}
+
+.avatar_name_live{
+    font-size: 1.2rem;
+    font-weight: 500;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.avatar_score_live{
+  font-size: 0.8rem;
+  color: #cacaca;
+  font-weight: 100;
+  font-family: 'Ubuntu', sans-serif;
+}
+
+.text122{
+  padding: 0 0 0.5rem 0;
+  font-size: 1.2rem;
+  color: #ffffff6b;
+}
+
+.position_rank_live{
+    padding: 0rem 0.5rem 0rem 1rem;
+    font-size: 1.5rem;
+    height: 100%;
+    font-weight: 700;
+    font-family: 'Ubuntu', sans-serif;
+    color: #f6ff00;
+}
+
+.player_active{
+    
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(0,61,21,1) 10%, rgba(0,61,21,1) 90%, rgba(255,255,255,0) 100%);
 }

@@ -1,6 +1,5 @@
+'use strict';
 const socket = io();
-var socketConnection = io.connect();
-
 
 // Variables to keep track of game state
 var wordCount = 0;
@@ -20,6 +19,7 @@ var score_number = document.getElementById('score-number');
 var accuracy_text = document.getElementById('accuracy_text');
 var wpm_text = document.getElementById('wpm_text');
 var countdownElement = document.getElementById("countdown");
+var createRoomContainer = document.getElementById('createRoomContainer');
 
 // Audio for incorrect key press
 var buzzer_sound = new Audio('./res/buzzer_sound.wav');
@@ -33,7 +33,48 @@ let stringLenght = un_typedTextElement.innerHTML;
 let arrayOfIntegers = new Array(stringLenght.length).fill(1);
 
 regenrateRoomID(); 
+hideMultiplayerWindow();
+
 countdownElement.innerHTML = numberOfSecondToCompete;
+
+
+
+socket.on('newUserJoined', (msg) => {
+    socket_id = msg;
+    setUserSocketID();
+});
+
+socket.on('connect', function() {
+    // Access the socket ID directly using socket.id
+    const socketId = socket.id;
+    // Now you can use the socket ID as needed
+    setUserSocketID(socketId);
+});
+
+
+//* UPADTED OF ROOM DATA FROM SERVER 
+socket.on('roomData', (roomDataJSONList) => {
+
+    // console.log('Received avatar data:', roomDataJSONList);
+    
+    var playerTab = document.querySelector('#playersTab');
+    clearChildElements(playerTab);
+
+    for (const [playerSocketID, playerInfo] of Object.entries(roomDataJSONList)) {
+
+        const playerName = playerInfo.name;
+        const playerScore = playerInfo.score;
+        const playerAvatarLink = playerInfo.avatar_link;
+
+
+        console.log(playerName, playerScore, playerAvatarLink);
+        createPlayerBox(playerName, playerAvatarLink, playerScore)
+    }
+    
+
+});
+
+
 
 // Event listener for keydown
 document.addEventListener('keydown', function (event) {
@@ -72,7 +113,7 @@ document.addEventListener('keydown', function (event) {
             key_to_press_box.innerHTML = event.key;
             scoreCount -= 2;
 
-            ooops_sound.play();
+            // ooops_sound.play();
         }
 
         scoreCount = Math.max(0, scoreCount);
@@ -80,9 +121,23 @@ document.addEventListener('keydown', function (event) {
 
     wpm_text.innerHTML =  findWPM(noOfsecondPassed, wordCount).toFixed(2); // Update accuracy
     score_number.innerHTML = scoreCount;
+
+
+    // send score update data to server
+    socket.emit('updatePlayerScore', 
+                {
+                   "playerID": socket_id,
+                   "score": scoreCount
+                });
+
 });
 
 
+socket.on('liveUpdateSecond', function() {
+    // Access the socket ID directly using socket.id
+    // Now you can use the socket ID as needed
+    
+});
 
 
 // Function to calculate accuracy
@@ -135,31 +190,6 @@ function deleteFirstCharacter() {
 }
 
 
-
-function joinMatch(){
-
-      var roomIdTextInputText = document.getElementById('roomIdTextInput').value;
-      var nameTextInputText = document.getElementById('nameTextInput').value;
-
-      hideJoinMatchTab();
-      showWatingPlayersTab();
-      setUserSocketID();
-
-      room_id = roomIdTextInputText;
-      var roomID_Div = document.getElementById('roomIDTextSpan');
-      roomID_Div.innerHTML = room_id;
-     
-}
-
-
-socketConnection.on('connect', function() {
-    socket_id = socketConnection.socket.sessionid; //
-    console.log(socket_id);
-    setUserSocketID();
-});
-
-
-
 function startCountdown(initialTime) {
 
       var timeleft = initialTime;
@@ -174,18 +204,18 @@ function startCountdown(initialTime) {
           }
 
           if(timeleft == 1){
-            timup_sound.play();
+            // timup_sound.play();
             
           }else if(timeleft <= 5){
             // countdownElement.style.color = "#f00";
-            tick_2x_sound.play();
+            // tick_2x_sound.play();
 
           }else if(timeleft == 10){
             countdownElement.style.color = "#fcd703";
-            tick_2x_sound.play();
+            // tick_2x_sound.play();
 
           }else {
-            tick_sound.play();
+            // tick_sound.play();
           }
 
 
@@ -204,30 +234,51 @@ function startCountdown(initialTime) {
   }
 
 
-  function openMultiplayerWindow(){
+function openMultiplayerWindow(){
       var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
       wrapper_add_player_container.style.display = "flex";
       regenrateRoomID();
-  }
+}
+
+function hideMultiplayerWindow(){
+    var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
+    wrapper_add_player_container.style.display = "none";
+}
 
 
-  createRoomContainer = document.getElementById('createRoomContainer');
 
-
-// ----------------------  SOCKET    --------------------------
-
-  socket.on('newUserJoined', (msg) => {
-
-        socket_id = msg;
-        // createPlayerBox(playersData)
-        setUserSocketID();
-
-  });
+// Function to handle joining a match
+function joinMatch() {
   
+  // Get input elements from the form
+  const roomIdInput = document.getElementById('roomIdTextInput');
+  const nameInput = document.getElementById('nameTextInput');
+  const socketIdInput = document.getElementById('socketId_TextInput');
 
-// document.getElementById('createJoinForm').addEventListener('submit', function(event) {
-//   event.preventDefault();
-// });
+  // Create an object with player room data
+  const playerRoomData = {
+    name: nameInput.value,
+    room_id: roomIdInput.value,
+    user_socket_id: socketIdInput.value
+  };
+
+  // Emit a 'joinMatch' event to the server with player room data
+  socket.emit('joinMatch', playerRoomData);
+
+  // Hide the 'Join Match' tab
+  hideJoinMatchTab();
+
+  // Show the 'Waiting Players' tab
+  showWatingPlayersTab();
+
+  // Set user socket ID (assuming you have a function for this)
+  setUserSocketID();
+
+  // Update the displayed room ID in the HTML
+  const roomID_Div = document.getElementById('roomIDTextSpan');
+  roomID_Div.innerHTML = roomIdInput.value;
+}
+
 
 
 function regenrateRoomID(){
@@ -263,7 +314,7 @@ function closeMultiplayerWindow(){
 
 
 // Function to create and append player boxes
-function createPlayerBox(playerData) {
+function createPlayerBox(player_name, playerAvatarLink, playerScore) {
   // Create elements
   var playerBox = document.createElement('div');
   playerBox.classList.add('playerBox');
@@ -273,22 +324,29 @@ function createPlayerBox(playerData) {
 
   var playerImage = document.createElement('img');
   playerImage.classList.add('player_logo_image');
-  playerImage.src = playerData.imageUrl;
+  playerImage.src = playerAvatarLink;
   playerImage.alt = 'Player Image';
 
   var playerName = document.createElement('div');
   playerName.classList.add('playername');
-  playerName.textContent = playerData.playerName;
+  playerName.textContent = player_name;
 
   // Append elements to the player box
   box89.appendChild(playerImage);
   playerBox.appendChild(box89);
   playerBox.appendChild(playerName);
 
+
   // Append the player box to the container
-  // document.getElementById('players').appendChild(playerBox);
+  document.getElementById('playersTab').appendChild(playerBox);
 }
 
+// Function to clear all child elements under a given parent element
+function clearChildElements(parentElement) {
+    while (parentElement.firstChild) {
+        parentElement.removeChild(parentElement.firstChild);
+    }
+}
 
 function generateRandomString(length) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
