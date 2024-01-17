@@ -6,13 +6,13 @@ const express = require('express');
 const app = express();
 const join  = require('node:path');
 const { Server } = require('socket.io');
-const { log } = require("console");
+const { log, count } = require("console");
 const colog = require('colog');
 
 const server = http.createServer(app);
 const io = new Server(server);
 
-const PORT = process.env.PORT || 3030;
+const PORT = process.env.PORT || 3000;
 
 
 const avatarLink_list = [
@@ -74,6 +74,49 @@ io.on('connection', (socket) => {
             // SEND THE roomsDetailArrayList if new user join
             io.to(playerRoomData.room_id)
                 .emit("roomData", roomsDetailArrayList[playerRoomData.room_id]);
+
+      });
+
+
+
+
+      socket.on('startMatchRequest', (gameStartingData) => {
+
+            room_id = gameStartingData["room_id"]
+            socket_id = gameStartingData["socket_id"]
+
+            // LOGGING
+            colog.warning("\nStart Game Request:");
+            colog.warning(room_id);
+            colog.warning(socket_id);
+
+
+            // SEND THE roomsDetailArrayList if new user join
+            io.to(room_id)
+                .emit("startGameInitilization", "");
+
+
+            var count = 0;
+            
+            // 5..4..3..2..1.. Timming counting
+            const intervalId = setInterval(() => {
+                  
+                  const SEC_TOGETREADY = 10;
+
+                  if (count <= SEC_TOGETREADY) {
+
+                      console.log("timmer:", SEC_TOGETREADY-count);
+                    io.to(room_id)
+                          .emit("getReadyContDown", SEC_TOGETREADY-count);
+
+                    count++;
+
+                  } else {
+                      clearInterval(intervalId);
+                  }
+            }, 1000);
+            
+
 
       });
 

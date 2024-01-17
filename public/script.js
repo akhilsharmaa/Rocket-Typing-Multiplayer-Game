@@ -34,15 +34,22 @@ let arrayOfIntegers = new Array(stringLenght.length).fill(1);
 
 regenrateRoomID(); 
 hideMultiplayerWindow();
+hideLivePlayerCardButton();
+hideGetReadyCountdownWrapper();
 
 countdownElement.innerHTML = numberOfSecondToCompete;
 
 
-
+// Listen for the 'newUserJoined' event on the socket
 socket.on('newUserJoined', (msg) => {
-    socket_id = msg;
-    setUserSocketID();
+  // Update the socket_id variable with the received message
+  socket_id = msg;
+
+  // Call the setUserSocketID function to handle the updated socket_id
+  setUserSocketID();
 });
+
+
 
 socket.on('connect', function() {
     // Access the socket ID directly using socket.id
@@ -52,27 +59,58 @@ socket.on('connect', function() {
 });
 
 
+
+
 //* UPADTED OF ROOM DATA FROM SERVER 
 socket.on('roomData', (roomDataJSONList) => {
 
     // console.log('Received avatar data:', roomDataJSONList);
     
+     // Get the playersTab element from the DOM
     var playerTab = document.querySelector('#playersTab');
+
+    // Clear child elements of the playersTab element
     clearChildElements(playerTab);
 
+    // Iterate through the roomDataJSONList to update player information
     for (const [playerSocketID, playerInfo] of Object.entries(roomDataJSONList)) {
 
+        // Extract player information from the received data
         const playerName = playerInfo.name;
         const playerScore = playerInfo.score;
         const playerAvatarLink = playerInfo.avatar_link;
 
-
-        console.log(playerName, playerScore, playerAvatarLink);
+        // console.log(playerName, playerScore, playerAvatarLink);
         createPlayerBox(playerName, playerAvatarLink, playerScore)
     }
-    
-
+  
 });
+
+
+
+socket.on('startGameInitilization',  (gameliveUpdate) => {
+
+        isMultiplayer = true; 
+        hideMultiplayerWindow();
+        hideMultiplayerButton();
+        showLivePlayerCardButton();
+});
+
+
+socket.on('getReadyContDown',  (no_of_sec_to_getReady) => { 
+
+    showGetReadyCountdownWrapper(no_of_sec_to_getReady);
+    
+});
+
+
+
+
+socket.on('gameliveUpdate',  (gameliveUpdate) => {
+
+    
+});
+
 
 
 
@@ -133,12 +171,6 @@ document.addEventListener('keydown', function (event) {
 });
 
 
-socket.on('liveUpdateSecond', function() {
-    // Access the socket ID directly using socket.id
-    // Now you can use the socket ID as needed
-    
-});
-
 
 // Function to calculate accuracy
 function findAccuarcy() {
@@ -166,6 +198,7 @@ function findWPM(sec, words) {
     return Math.max(0,  (sec/60.0) * words); 
 }
 
+
 // Event listener for keyup to hide the key press box
 document.addEventListener('keyup', function (event) {
     key_to_press_box.style.visibility = 'hidden';
@@ -173,6 +206,7 @@ document.addEventListener('keyup', function (event) {
 
 // Function to delete the first character from the untyped text
 function deleteFirstCharacter() {
+
     var currentText = un_typedTextElement.innerHTML;
 
     if (currentText.length > 0) {
@@ -196,42 +230,53 @@ function startCountdown(initialTime) {
 
       var downloadTimer = setInterval(function(){
 
-          if(timeleft <= 0){
-            clearInterval(downloadTimer);
-            countdownElement.innerHTML = "00";
-          } else {
-            countdownElement.innerHTML = timeleft ;
-          }
-
-          if(timeleft == 1){
-            // timup_sound.play();
-            
-          }else if(timeleft <= 5){
-            // countdownElement.style.color = "#f00";
-            // tick_2x_sound.play();
-
-          }else if(timeleft == 10){
-            countdownElement.style.color = "#fcd703";
-            // tick_2x_sound.play();
-
-          }else {
-            // tick_sound.play();
-          }
-
+          setTimerTextColor(timeleft)
 
           timeleft -= 1;
           noOfsecondPassed += 1;
     }, 1000);
-  }
+}
+
+
+
   
+function setTimerTextColor(timeleft) {
+    // Check if timeleft is less than or equal to 0
+    if (timeleft <= 0) {
+        // Clear the interval and set the countdown element to "00"
+        clearInterval(downloadTimer);
+        countdownElement.innerHTML = "00";
+    } else {
+        // Update the countdown element with the current timeleft
+        countdownElement.innerHTML = timeleft;
+    }
 
-  function updateTime(newTimeLeft){
+    // Check specific conditions for changing the text color
+    if (timeleft == 1) {
+        // timup_sound.play();
+    } else if (timeleft <= 5) {
+        // Change text color to red and 
+        countdownElement.style.color = "#f00";
+        // tick_2x_sound.play();
+    } else if (timeleft == 10) {
+        // Change text color to yellow and 
+        countdownElement.style.color = "#fcd703";
+        // tick_2x_sound.play();
+    } else {
+        // tick_sound.play();
+    }
+}
 
-  }
 
   function hideStartButton(){
     
   }
+
+  function hideMultiplayerButton(){
+    var  go_multiplayer_btn = document.getElementById('go_multiplayer_btn');
+    go_multiplayer_btn.style.display = "none";
+  }
+
 
 
 function openMultiplayerWindow(){
@@ -243,6 +288,31 @@ function openMultiplayerWindow(){
 function hideMultiplayerWindow(){
     var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
     wrapper_add_player_container.style.display = "none";
+}
+
+
+function showLivePlayerCardButton(){
+    var live_player_status_container = document.getElementById('live_player_status_container');
+    live_player_status_container.style.display = "block";
+}
+
+function hideLivePlayerCardButton(){
+    var live_player_status_container = document.getElementById('live_player_status_container');
+    live_player_status_container.style.display = "none";
+}
+
+
+function showGetReadyCountdownWrapper(second){
+    var get_ready_countdown_wrapper = document.getElementById('get_ready_countdown_wrapper');
+    get_ready_countdown_wrapper.style.display = "flex";
+
+    var reverse_conter_time_number = document.getElementById('reverse_conter_time_number');
+    reverse_conter_time_number.innerHTML = second;
+}
+
+function hideGetReadyCountdownWrapper(){
+    var get_ready_countdown_wrapper = document.getElementById('get_ready_countdown_wrapper');
+    get_ready_countdown_wrapper.style.display = "none";
 }
 
 
@@ -277,6 +347,16 @@ function joinMatch() {
   // Update the displayed room ID in the HTML
   const roomID_Div = document.getElementById('roomIDTextSpan');
   roomID_Div.innerHTML = roomIdInput.value;
+  room_id = roomIdInput.value;
+}
+
+
+function startTheMatchClicked(){
+    socket.emit('startMatchRequest', 
+              {
+                "socket_id":socket_id,  
+                "room_id": room_id
+              });
 }
 
 
