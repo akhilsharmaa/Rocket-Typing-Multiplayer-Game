@@ -14,7 +14,7 @@ const io = new Server(server);
             const SEC_GAME_DURATION = 100;
 
 const PORT = process.env.PORT || 3000;
-const GAME_DURATION_IN_SECOND = 3;
+const GAME_DURATION_IN_SECOND = 100;
 
 
 const avatarLink_list = [
@@ -41,11 +41,8 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 var roomsDetailArrayList = {
-    roomID: {
-      'socketUserID': { name: 'Your Name', score: 0 },
-    },
-}
 
+}
 
 /*
 ---------------------------------------------------
@@ -80,9 +77,25 @@ io.on('connection', (socket) => {
             io.to(playerRoomData.room_id)
                 .emit("roomData", roomsDetailArrayList[playerRoomData.room_id]);
 
+
+            //* A Player requested to join the ROOM with a specific roomID
+            socket.on('scoreUpdateByPlayer', (updateData) => {
+
+                  var roomID = updateData["roomID"];
+                  var socketID = updateData["socketID"];
+                  var scoreCount = updateData["scoreCount"];
+
+                  // console.log(roomsDetailArrayList);
+
+                  //? UPDATE THE ROOM DETAIL ARRAY */
+                  updatePlayerScoreOnly(roomID, socketID, scoreCount);
+
+                  console.log("scoreUpdateByPlayer: roomID: ", roomID, "| socketID:", socketID, "score:", scoreCount);
+            });
+
       });
 
-
+      
 
 
       socket.on('startMatchRequest', async (gameStartingData) => {
@@ -154,20 +167,46 @@ io.on('connection', (socket) => {
 
 
             await startedGameCountdownCounter(io, room_id, GAME_DURATION_IN_SECOND);
-
             colog.error('++++++++++++++ ENDED: MULTIPLAYER GAME +++++++++++++++++\n');
 
 
       });
 
+
+
       //* DISCONNECTING THE USER 
       socket.on('disconnect', () => {
+
             colog.log(colog.color('--- DISCONNECTED  SOCKET: ', 'red') + colog.color(socket.id, 'yellow'));
 
       });
 });
 // --------------------------------------------------
 
+function updatePlayerScoreOnly(roomID, socketID, scoreCount){
+
+    // Ensure roomsDetailArrayList is defined
+    if (!roomsDetailArrayList) {
+      roomsDetailArrayList = {};
+    }
+
+    // Ensure roomsDetailArrayList[roomID] is defined
+    if (!roomsDetailArrayList[roomID]) {
+      roomsDetailArrayList[roomID] = {};
+    }
+
+    // Ensure roomsDetailArrayList[roomID] is defined
+    if (!roomsDetailArrayList[roomID][socketID]) {
+      roomsDetailArrayList[roomID][socketID] = {};
+    }
+
+    // Ensure roomsDetailArrayList[roomID] is defined
+    if (!roomsDetailArrayList[roomID][socketID].score) {
+      roomsDetailArrayList[roomID][socketID]["score"] = {};
+    }
+
+    roomsDetailArrayList[roomID][socketID]["score"] = scoreCount;
+}
 
 function roomInfo(room_id) {
 

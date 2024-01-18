@@ -20,6 +20,7 @@ var accuracy_text = document.getElementById('accuracy_text');
 var wpm_text = document.getElementById('wpm_text');
 var countdownElement = document.getElementById("countdown");
 var createRoomContainer = document.getElementById('createRoomContainer');
+var live_player_status_container = document.getElementById('live_player_status_container');
 
 // Audio for incorrect key press
 var buzzer_sound = new Audio('./res/buzzer_sound.wav');
@@ -106,17 +107,110 @@ socket.on('getReadyContDown',  (no_of_sec_to_getReady) => {
 
 
 
+
 socket.on('gameRoomLiveUpdateDataJson',  (gameUpdateData) => {
     
         const timeLeft = gameUpdateData["time"];
+        var playerDataJSON = gameUpdateData["playersData"];
+        // console.log(gameUpdateData["playersData"]);
 
-        console.log(gameUpdateData["playersData"]);
         setTimerText(timeLeft)
         hideGetReadyCountdownWrapper();
 
+        clearChildElements(live_player_status_container);
+
+
+
+        for (const [playerSocketID, playerInfo] of Object.entries(playerDataJSON)) {
+
+            // Extract player information from the received data
+            const playerName = playerInfo.name;
+            const playerScore = playerInfo.score;
+            const playerAvatarLink = playerInfo.avatar_link;
+    
+            // console.log(playerName, playerScore, playerAvatarLink);
+            appendLivePlayerBox(1, playerName, playerAvatarLink, playerScore)
+            
+        }
+
+
+
+        // // sorting 
+        // for (const [i, j] of Object.entries(playerDataJSON)) {
+
+        //     var maxScore = -1;
+        //     var maxPlayerID;
+
+        //     // Extract player information from the received data
+        //     var playerName, playerScore, playerAvatarLink;
+
+        //     for (const [playerSocketID, playerInfo] of Object.entries(playerDataJSON)) {
+            
+        //         if(playerInfo.score > maxScore){
+                    
+        //             maxPlayerID = playerSocketID;
+        //             maxScore = playerInfo.score;
+
+        //             playerName = playerInfo.name;
+        //             playerScore = playerInfo.score;
+        //             playerAvatarLink = playerInfo.avatar_link;
+        //         }
+
+        //     }
+
+        //     if(maxScore >= 0){
+        //             // console.log(playerName, playerScore, playerAvatarLink);
+        //             appendLivePlayerBox(1, playerName, playerAvatarLink, playerScore)
+        //             playerDataJSON[maxPlayerID]["score"] = -1;
+        //     }
+
+        // }
+
+
+
+
+        /* 
+            UPDATE THE PLAYER SCORE ON SERVER 
+        */
 });
 
 
+function appendLivePlayerBox(rank, name, avatar_img_link, score){
+
+        // Create the elements
+        var livePlayerBox = document.createElement("div");
+        livePlayerBox.classList.add("live_player_box"); 
+
+        var positionRankLive = document.createElement("div");
+        positionRankLive.classList.add("position_rank_live");
+        positionRankLive.textContent = "#" + rank; // rank
+
+        var avatarLogoLive = document.createElement("img");
+        avatarLogoLive.classList.add("avatar_logo_live");
+        avatarLogoLive.src = avatarLogoLive.src = avatar_img_link;
+        avatarLogoLive.alt = "";
+
+        var box32 = document.createElement("box32");
+        
+        var avatarNameLive = document.createElement("div");
+        avatarNameLive.classList.add("avatar_name_live");
+        avatarNameLive.textContent = name; 
+
+        var avatarScoreLive = document.createElement("div");
+        avatarScoreLive.classList.add("avatar_score_live");
+        avatarScoreLive.innerHTML = "SCORE: <span class='scoreText'>" + score + "</span>";
+
+        // Append elements to the livePlayerBox
+        livePlayerBox.appendChild(positionRankLive);
+        livePlayerBox.appendChild(avatarLogoLive);
+        livePlayerBox.appendChild(box32);
+        box32.appendChild(document.createElement("div").appendChild(avatarNameLive));
+        box32.appendChild(document.createElement("div").appendChild(avatarScoreLive));
+
+
+        // Append the livePlayerBox to the body
+        live_player_status_container.appendChild(livePlayerBox);
+}
 
 
 // Event listener for keydown
@@ -126,7 +220,7 @@ document.addEventListener('keydown', function (event) {
         isStarted = true;
         // Example usage
         startCountdown(numberOfSecondToCompete);
-        hideStartButton();
+        // hideStartButton();
     }
 
     const firstCharacter = un_typedTextElement.textContent.charAt(0);
@@ -150,7 +244,7 @@ document.addEventListener('keydown', function (event) {
         // Incorrect key pressed
         arrayOfIntegers[letterCount] = 0;
 
-        if (event.key.length == 1) {
+        if (event.key.length === 1) {
             // Incorrect single character key pressed
             key_to_press_box.style.visibility = 'visible';
             key_to_press_box.innerHTML = event.key;
@@ -160,18 +254,30 @@ document.addEventListener('keydown', function (event) {
         }
 
         scoreCount = Math.max(0, scoreCount);
+
     }
 
     wpm_text.innerHTML =  findWPM(noOfsecondPassed, wordCount).toFixed(2); // Update accuracy
     score_number.innerHTML = scoreCount;
 
 
-    // send score update data to server
-    socket.emit('updatePlayerScore', 
-                {
-                   "playerID": socket_id,
-                   "score": scoreCount
-                });
+    // // send score update data to server
+    // socket.emit('updatePlayerScore', 
+    //             {
+    //                "playerID": socket_id,
+    //                "score": scoreCount
+    //             });
+
+
+                // SERVER UPDATE SCORE
+
+    if(isMultiplayer){
+        socket.emit('scoreUpdateByPlayer', {
+            "roomID": room_id, 
+            "socketID": socket_id, 
+            "scoreCount": scoreCount
+        });
+    }
 
 });
 
@@ -260,7 +366,6 @@ function setTimerText(timeleft) {
     // Check if timeleft is less than or equal to 0
     if (timeleft <= 0) {
         // Clear the interval and set the countdown element to "00"
-        clearInterval(downloadTimer);
         countdownElement.innerHTML = "00";
     } else {
         // Update the countdown element with the current timeleft
@@ -284,87 +389,38 @@ function setTimerText(timeleft) {
 }
 
 
-  function hideStartButton(){
-    
-  }
-
-  function hideMultiplayerButton(){
-    var  go_multiplayer_btn = document.getElementById('go_multiplayer_btn');
-    go_multiplayer_btn.style.display = "none";
-  }
-
-
-
-function openMultiplayerWindow(){
-      var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
-      wrapper_add_player_container.style.display = "flex";
-      regenrateRoomID();
-}
-
-function hideMultiplayerWindow(){
-    var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
-    wrapper_add_player_container.style.display = "none";
-}
-
-
-function showLivePlayerCardButton(){
-    var live_player_status_container = document.getElementById('live_player_status_container');
-    live_player_status_container.style.display = "block";
-}
-
-function hideLivePlayerCardButton(){
-    var live_player_status_container = document.getElementById('live_player_status_container');
-    live_player_status_container.style.display = "none";
-}
-
-
-function showGetReadyCountdownWrapper(second){
-
-    var get_ready_countdown_wrapper = document.getElementById('get_ready_countdown_wrapper');
-    get_ready_countdown_wrapper.style.display = "flex";
-
-    var reverse_conter_time_number = document.getElementById('reverse_conter_time_number');
-    reverse_conter_time_number.innerHTML = second;
-
-}
-
-function hideGetReadyCountdownWrapper(){
-    var get_ready_countdown_wrapper = document.getElementById('get_ready_countdown_wrapper');
-    get_ready_countdown_wrapper.style.display = "none";
-}
-
-
 // Function to handle joining a match
 function joinMatch() {
   
-  // Get input elements from the form
-  const roomIdInput = document.getElementById('roomIdTextInput');
-  const nameInput = document.getElementById('nameTextInput');
-  const socketIdInput = document.getElementById('socketId_TextInput');
+    // Get input elements from the form
+    const roomIdInput = document.getElementById('roomIdTextInput');
+    const nameInput = document.getElementById('nameTextInput');
+    const socketIdInput = document.getElementById('socketId_TextInput');
 
-  // Create an object with player room data
-  const playerRoomData = {
-    name: nameInput.value,
-    room_id: roomIdInput.value,
-    user_socket_id: socketIdInput.value
-  };
+    // Create an object with player room data
+    const playerRoomData = {
+        name: nameInput.value,
+        room_id: roomIdInput.value,
+        user_socket_id: socketIdInput.value
+    };
 
-  // Emit a 'joinMatch' event to the server with player room data
-  socket.emit('joinMatch', playerRoomData);
+    // Emit a 'joinMatch' event to the server with player room data
+    socket.emit('joinMatch', playerRoomData);
 
-  // Hide the 'Join Match' tab
-  hideJoinMatchTab();
+    // Hide the 'Join Match' tab
+    hideJoinMatchTab();
 
-  // Show the 'Waiting Players' tab
-  showWatingPlayersTab();
+    // Show the 'Waiting Players' tab
+    showWatingPlayersTab();
 
-  // Set user socket ID (assuming you have a function for this)
-  setUserSocketID();
+    // Set user socket ID (assuming you have a function for this)
+    setUserSocketID();
 
-  // Update the displayed room ID in the HTML
-  const roomID_Div = document.getElementById('roomIDTextSpan');
-  roomID_Div.innerHTML = roomIdInput.value;
-  room_id = roomIdInput.value;
+    // Update the displayed room ID in the HTML
+    const roomID_Div = document.getElementById('roomIDTextSpan');
+    roomID_Div.innerHTML = roomIdInput.value;
+    room_id = roomIdInput.value;
+    
 }
 
 
@@ -388,54 +444,35 @@ function setUserSocketID(){
   socketId_TextInput.value = socket_id;
 }
 
-function hideWatingPlayersTab(){
-  var watingPlayersTab = document.getElementById('watingPlayersTab');
-  watingPlayersTab.style.display = "none";
-}
-
-function showWatingPlayersTab(){
-  var watingPlayersTab = document.getElementById('watingPlayersTab');
-  watingPlayersTab.style.display = "flex";
-}
-
-function hideJoinMatchTab(){
-  var joinRoomContainer = document.getElementById('joinRoomContainer');
-  joinRoomContainer.style.display = "none";
-}
-
-function closeMultiplayerWindow(){
-  var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
-  wrapper_add_player_container.style.display = "none";
-}
-
 
 
 // Function to create and append player boxes
 function createPlayerBox(player_name, playerAvatarLink, playerScore) {
-  // Create elements
-  var playerBox = document.createElement('div');
-  playerBox.classList.add('playerBox');
 
-  var box89 = document.createElement('div');
-  box89.classList.add('box89');
+    // Create elements
+    var playerBox = document.createElement('div');
+    playerBox.classList.add('playerBox');
 
-  var playerImage = document.createElement('img');
-  playerImage.classList.add('player_logo_image');
-  playerImage.src = playerAvatarLink;
-  playerImage.alt = 'Player Image';
+    var box89 = document.createElement('div');
+    box89.classList.add('box89');
 
-  var playerName = document.createElement('div');
-  playerName.classList.add('playername');
-  playerName.textContent = player_name;
+    var playerImage = document.createElement('img');
+    playerImage.classList.add('player_logo_image');
+    playerImage.src = playerAvatarLink;
+    playerImage.alt = 'Player Image';
 
-  // Append elements to the player box
-  box89.appendChild(playerImage);
-  playerBox.appendChild(box89);
-  playerBox.appendChild(playerName);
+    var playerName = document.createElement('div');
+    playerName.classList.add('playername');
+    playerName.textContent = player_name;
+
+    // Append elements to the player box
+    box89.appendChild(playerImage);
+    playerBox.appendChild(box89);
+    playerBox.appendChild(playerName);
 
 
-  // Append the player box to the container
-  document.getElementById('playersTab').appendChild(playerBox);
+    // Append the player box to the container
+    document.getElementById('playersTab').appendChild(playerBox);
 }
 
 // Function to clear all child elements under a given parent element
@@ -445,14 +482,85 @@ function clearChildElements(parentElement) {
     }
 }
 
+
+
 function generateRandomString(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let randomString = '';
+        
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let randomString = '';
 
-  for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      randomString += characters.charAt(randomIndex);
-  }
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * characters.length);
+            randomString += characters.charAt(randomIndex);
+        }
 
-  return randomString;
+        return randomString;
 }
+
+
+function hideMultiplayerButton(){
+  var  go_multiplayer_btn = document.getElementById('go_multiplayer_btn');
+  go_multiplayer_btn.style.display = "none";
+}
+
+
+
+function openMultiplayerWindow(){
+    var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
+    wrapper_add_player_container.style.display = "flex";
+    regenrateRoomID();
+}
+
+function hideMultiplayerWindow(){
+  var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
+  wrapper_add_player_container.style.display = "none";
+}
+
+
+function showLivePlayerCardButton(){
+  var live_player_status_container = document.getElementById('live_player_status_container');
+  live_player_status_container.style.display = "block";
+}
+
+function hideLivePlayerCardButton(){
+  var live_player_status_container = document.getElementById('live_player_status_container');
+  live_player_status_container.style.display = "none";
+}
+
+
+function showGetReadyCountdownWrapper(second){
+
+  var get_ready_countdown_wrapper = document.getElementById('get_ready_countdown_wrapper');
+  get_ready_countdown_wrapper.style.display = "flex";
+
+  var reverse_conter_time_number = document.getElementById('reverse_conter_time_number');
+  reverse_conter_time_number.innerHTML = second;
+
+}
+
+function hideGetReadyCountdownWrapper(){
+  var get_ready_countdown_wrapper = document.getElementById('get_ready_countdown_wrapper');
+  get_ready_countdown_wrapper.style.display = "none";
+}
+
+
+function hideWatingPlayersTab(){
+    var watingPlayersTab = document.getElementById('watingPlayersTab');
+    watingPlayersTab.style.display = "none";
+  }
+  
+  function showWatingPlayersTab(){
+    var watingPlayersTab = document.getElementById('watingPlayersTab');
+    watingPlayersTab.style.display = "flex";
+  }
+  
+  function hideJoinMatchTab(){
+    var joinRoomContainer = document.getElementById('joinRoomContainer');
+    joinRoomContainer.style.display = "none";
+  }
+  
+  function closeMultiplayerWindow(){
+    var wrapper_add_player_container = document.getElementById('wrapper_add_player_container');
+    wrapper_add_player_container.style.display = "none";
+  }
+  
