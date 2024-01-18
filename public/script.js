@@ -99,16 +99,21 @@ socket.on('startGameInitilization',  (gameliveUpdate) => {
 
 socket.on('getReadyContDown',  (no_of_sec_to_getReady) => { 
 
-    showGetReadyCountdownWrapper(no_of_sec_to_getReady);
-    
+        showGetReadyCountdownWrapper(no_of_sec_to_getReady);
+
 });
 
 
 
 
-socket.on('gameliveUpdate',  (gameliveUpdate) => {
-
+socket.on('gameRoomLiveUpdateDataJson',  (gameUpdateData) => {
     
+        const timeLeft = gameUpdateData["time"];
+
+        console.log(gameUpdateData["playersData"]);
+        setTimerText(timeLeft)
+        hideGetReadyCountdownWrapper();
+
 });
 
 
@@ -199,10 +204,13 @@ function findWPM(sec, words) {
 }
 
 
+
 // Event listener for keyup to hide the key press box
 document.addEventListener('keyup', function (event) {
     key_to_press_box.style.visibility = 'hidden';
 });
+
+
 
 // Function to delete the first character from the untyped text
 function deleteFirstCharacter() {
@@ -226,11 +234,18 @@ function deleteFirstCharacter() {
 
 function startCountdown(initialTime) {
 
+      if(isMultiplayer)return;
+
       var timeleft = initialTime;
 
       var downloadTimer = setInterval(function(){
 
-          setTimerTextColor(timeleft)
+            if (timeleft <= 0) {
+                // Clear the interval and set the countdown element to "00"
+                clearInterval(downloadTimer);
+            }
+
+            setTimerText(timeleft)
 
           timeleft -= 1;
           noOfsecondPassed += 1;
@@ -240,7 +255,8 @@ function startCountdown(initialTime) {
 
 
   
-function setTimerTextColor(timeleft) {
+function setTimerText(timeleft) {
+
     // Check if timeleft is less than or equal to 0
     if (timeleft <= 0) {
         // Clear the interval and set the countdown element to "00"
@@ -303,18 +319,19 @@ function hideLivePlayerCardButton(){
 
 
 function showGetReadyCountdownWrapper(second){
+
     var get_ready_countdown_wrapper = document.getElementById('get_ready_countdown_wrapper');
     get_ready_countdown_wrapper.style.display = "flex";
 
     var reverse_conter_time_number = document.getElementById('reverse_conter_time_number');
     reverse_conter_time_number.innerHTML = second;
+
 }
 
 function hideGetReadyCountdownWrapper(){
     var get_ready_countdown_wrapper = document.getElementById('get_ready_countdown_wrapper');
     get_ready_countdown_wrapper.style.display = "none";
 }
-
 
 
 // Function to handle joining a match

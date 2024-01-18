@@ -11,11 +11,16 @@ const colog = require('colog');
 
 const server = http.createServer(app);
 const io = new Server(server);
+            const SEC_GAME_DURATION = 100;
 
 const PORT = process.env.PORT || 3000;
+const GAME_DURATION_IN_SECOND = 3;
 
 
 const avatarLink_list = [
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjGcTeLUMuVUORjPxactDdTiFRgUWSws9sJBSJQQGQsJp4qkyuUzywRsI94zqTdeI7QeM&usqp=CAU", 
+    "https://img.lovepik.com/free-png/20210923/lovepik-crystal-fox-front-cartoon-avatar-png-image_401269767_wh1200.png", 
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0EgoOPcypYckMFAV_AiJVf6zVBrg-zsaDFbunWatYOnPZvFpn_9XSr6iUzEtw-nlpjqg&usqp=CAU", 
     "https://st3.depositphotos.com/6937784/36076/v/450/depositphotos_360769008-stock-illustration-cute-panda-face-vector-illustration.jpg",
     "https://img.freepik.com/premium-vector/common-panda-bear-mammal-animal-face_313877-13038.jpg", 
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWikbhPSl7ZH3FKd54bQZR9aJZhCYdZLTgJkEQwyU1IVFhY43aPOqiLTCHM_i3Rog1iaM&usqp=CAU", 
@@ -57,7 +62,7 @@ io.on('connection', (socket) => {
       socket.on('joinMatch', (playerRoomData) => {
 
             // LOGGING
-            colog.warning("\nRoom Joining/Creating Request:");
+            colog.log("\nRoom Joining/Creating Request:");
             console.log(playerRoomData);
 
             //* JOIN THE SOCKET TO A SPECIFIC ROOM 
@@ -80,42 +85,77 @@ io.on('connection', (socket) => {
 
 
 
-      socket.on('startMatchRequest', (gameStartingData) => {
+      socket.on('startMatchRequest', async (gameStartingData) => {
 
             room_id = gameStartingData["room_id"]
             socket_id = gameStartingData["socket_id"]
-
-            // LOGGING
-            colog.warning("\nStart Game Request:");
-            colog.warning(room_id);
-            colog.warning(socket_id);
-
 
             // SEND THE roomsDetailArrayList if new user join
             io.to(room_id)
                 .emit("startGameInitilization", "");
 
+            colog.success('\n++++++++++++++ STARTED: NEW MULTIPLAYER GAME  +++++++++ ');
 
-            var count = 0;
-            
-            // 5..4..3..2..1.. Timming counting
-            const intervalId = setInterval(() => {
+            /**
+            * Starts the countdown for the "get ready" phase in a room using Socket.io. */
+            const startGetReadyCountdownCounter = async (io, room_id, duration) => {
                   
-                  const SEC_TOGETREADY = 10;
 
-                  if (count <= SEC_TOGETREADY) {
 
-                      console.log("timmer:", SEC_TOGETREADY-count);
-                    io.to(room_id)
-                          .emit("getReadyContDown", SEC_TOGETREADY-count);
+                  const countdown = async (count) => {
+                      if (count > 0) {
+                  
+                          // Emit the current count to the room
+                          io.to(room_id)
+                              .emit("getReadyContDown", count);
+                              
+                          await new Promise((resolve) => setTimeout(resolve, 1000));
+                          // Recursively call the countdown function with the updated count
+                          await countdown(count - 1);
+                      }
+                  };
+              
+                  await countdown(duration);
+            };
 
-                    count++;
 
-                  } else {
-                      clearInterval(intervalId);
-                  }
-            }, 1000);
-            
+            colog.progress(0, GAME_DURATION_IN_SECOND, "asd");
+
+            const startedGameCountdownCounter = async (io, room_id, duration) => {
+              
+                  const countdown = async (count) => {
+                      if (count >= 0) {
+
+                          // console.log("Timer:", count);
+                          colog.progress();
+
+                          const gameRoomLiveUpdateDataJson = {
+                              "time": count, 
+                              "playersData": roomsDetailArrayList[room_id]
+                          }
+
+                          io.to(room_id)
+                              .emit("gameRoomLiveUpdateDataJson", gameRoomLiveUpdateDataJson);
+                          
+                                            
+                          await new Promise((resolve) => setTimeout(resolve, 1000));
+                          await countdown(count - 1);
+                      }
+                  };
+
+                  await countdown(duration);
+          };
+      
+
+          
+            // Countdown for SEC_TOGETREADY seconds
+            const SEC_TOGETREADY = 3;
+            await startGetReadyCountdownCounter(io, room_id, SEC_TOGETREADY);
+
+
+            await startedGameCountdownCounter(io, room_id, GAME_DURATION_IN_SECOND);
+
+            colog.error('++++++++++++++ ENDED: MULTIPLAYER GAME +++++++++++++++++\n');
 
 
       });
