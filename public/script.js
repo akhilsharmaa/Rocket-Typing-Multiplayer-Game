@@ -56,6 +56,8 @@ socket.on('connect', function() {
     // Access the socket ID directly using socket.id
     const socketId = socket.id;
     // Now you can use the socket ID as needed
+    setCookie("socketId", socket.id, 1);
+
     setUserSocketID(socketId);
 });
 
@@ -89,9 +91,14 @@ socket.on('roomData', (roomDataJSONList) => {
 
 
 
+
 socket.on('startGameInitilization',  (gameliveUpdate) => {
 
         isMultiplayer = true; 
+
+        // play a start butffer 
+        buzzer_sound.play();
+
         hideMultiplayerWindow();
         hideMultiplayerButton();
         showLivePlayerCardButton();
@@ -100,6 +107,7 @@ socket.on('startGameInitilization',  (gameliveUpdate) => {
 
 socket.on('getReadyContDown',  (no_of_sec_to_getReady) => { 
 
+        // console.log("getReadyContDown: ", socket_id);
         showGetReadyCountdownWrapper(no_of_sec_to_getReady);
 
 });
@@ -109,7 +117,8 @@ socket.on('getReadyContDown',  (no_of_sec_to_getReady) => {
 
 
 socket.on('gameRoomLiveUpdateDataJson',  (gameUpdateData) => {
-    
+            
+
         const timeLeft = gameUpdateData["time"];
         var playerDataJSON = gameUpdateData["playersData"];
         // console.log(gameUpdateData["playersData"]);
@@ -121,50 +130,51 @@ socket.on('gameRoomLiveUpdateDataJson',  (gameUpdateData) => {
 
 
 
-        for (const [playerSocketID, playerInfo] of Object.entries(playerDataJSON)) {
-
-            // Extract player information from the received data
-            const playerName = playerInfo.name;
-            const playerScore = playerInfo.score;
-            const playerAvatarLink = playerInfo.avatar_link;
-    
-            // console.log(playerName, playerScore, playerAvatarLink);
-            appendLivePlayerBox(1, playerName, playerAvatarLink, playerScore)
-            
-        }
-
-
-
-        // // sorting 
-        // for (const [i, j] of Object.entries(playerDataJSON)) {
-
-        //     var maxScore = -1;
-        //     var maxPlayerID;
+        // for (const [playerSocketID, playerInfo] of Object.entries(playerDataJSON)) {
 
         //     // Extract player information from the received data
-        //     var playerName, playerScore, playerAvatarLink;
-
-        //     for (const [playerSocketID, playerInfo] of Object.entries(playerDataJSON)) {
+        //     const playerName = playerInfo.name;
+        //     const playerScore = playerInfo.score;
+        //     const playerAvatarLink = playerInfo.avatar_link;
+    
+        //     // console.log(playerName, playerScore, playerAvatarLink);
+        //     appendLivePlayerBox(1, playerName, playerAvatarLink, playerScore)
             
-        //         if(playerInfo.score > maxScore){
-                    
-        //             maxPlayerID = playerSocketID;
-        //             maxScore = playerInfo.score;
-
-        //             playerName = playerInfo.name;
-        //             playerScore = playerInfo.score;
-        //             playerAvatarLink = playerInfo.avatar_link;
-        //         }
-
-        //     }
-
-        //     if(maxScore >= 0){
-        //             // console.log(playerName, playerScore, playerAvatarLink);
-        //             appendLivePlayerBox(1, playerName, playerAvatarLink, playerScore)
-        //             playerDataJSON[maxPlayerID]["score"] = -1;
-        //     }
-
         // }
+
+
+        var position = 1;
+
+        // sorting on the based on the highest score at top  
+        for (const [i, j] of Object.entries(playerDataJSON)) {
+
+            var maxScore = -1;
+            var maxPlayerID;
+
+            // Extract player information from the received data
+            var playerName, playerScore, playerAvatarLink;
+
+            for (const [playerSocketID, playerInfo] of Object.entries(playerDataJSON)) {
+            
+                if(playerInfo.score > maxScore){
+                    
+                    maxPlayerID = playerSocketID;
+                    maxScore = playerInfo.score;
+
+                    playerName = playerInfo.name;
+                    playerScore = playerInfo.score;
+                    playerAvatarLink = playerInfo.avatar_link;
+                }
+
+            }
+
+            if(maxScore >= 0){
+                    appendLivePlayerBox(position, playerName, playerAvatarLink, playerScore)
+                    playerDataJSON[maxPlayerID]["score"] = -1;
+            }
+
+            position += 1;
+        }
 
 
 
@@ -174,6 +184,32 @@ socket.on('gameRoomLiveUpdateDataJson',  (gameUpdateData) => {
         */
 });
 
+
+function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+
+
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+
+function eraseCookie(name) {   
+    document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
 
 function appendLivePlayerBox(rank, name, avatar_img_link, score){
 
@@ -216,11 +252,12 @@ function appendLivePlayerBox(rank, name, avatar_img_link, score){
 // Event listener for keydown
 document.addEventListener('keydown', function (event) {
 
-    if(isStarted == false && isMultiplayer == false){
+    if(isStarted === false){
         isStarted = true;
-        // Example usage
+    }
+
+    if(isMultiplayer === false){
         startCountdown(numberOfSecondToCompete);
-        // hideStartButton();
     }
 
     const firstCharacter = un_typedTextElement.textContent.charAt(0);
@@ -261,22 +298,14 @@ document.addEventListener('keydown', function (event) {
     score_number.innerHTML = scoreCount;
 
 
-    // // send score update data to server
-    // socket.emit('updatePlayerScore', 
-    //             {
-    //                "playerID": socket_id,
-    //                "score": scoreCount
-    //             });
+    // SERVER UPDATE SCORE
+    if(isMultiplayer === true){
 
-
-                // SERVER UPDATE SCORE
-
-    if(isMultiplayer){
         socket.emit('scoreUpdateByPlayer', {
             "roomID": room_id, 
-            "socketID": socket_id, 
+            "socketID": getCookie('socketId'), 
             "scoreCount": scoreCount
-        });
+        });   
     }
 
 });
@@ -305,7 +334,7 @@ function findWPM(sec, words) {
         return (60.0/sec) * words; 
     }
     
-    console.log(60.0/sec) * words;
+    // console.log(60.0/sec) * words;
     return Math.max(0,  (sec/60.0) * words); 
 }
 
@@ -426,10 +455,10 @@ function joinMatch() {
 
 function startTheMatchClicked(){
     socket.emit('startMatchRequest', 
-              {
+            {
                 "socket_id":socket_id,  
                 "room_id": room_id
-              });
+            });
 }
 
 

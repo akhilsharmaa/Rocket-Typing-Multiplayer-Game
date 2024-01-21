@@ -85,12 +85,8 @@ io.on('connection', (socket) => {
                   var socketID = updateData["socketID"];
                   var scoreCount = updateData["scoreCount"];
 
-                  // console.log(roomsDetailArrayList);
-
                   //? UPDATE THE ROOM DETAIL ARRAY */
                   updatePlayerScoreOnly(roomID, socketID, scoreCount);
-
-                  console.log("scoreUpdateByPlayer: roomID: ", roomID, "| socketID:", socketID, "score:", scoreCount);
             });
 
       });

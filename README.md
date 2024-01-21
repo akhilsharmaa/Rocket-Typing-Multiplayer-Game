@@ -1,5 +1,5 @@
 # Rocket-Typing Multiplayer Game
-This project is a Typing Multiplayer Game built using **Node.js, Express, and Socket.IO.** It allows multiple users to join a room, type messages, and interact in real-time.
+This project is a Fastest Typing Multiplayer Game built using **Node.js, Express, and Socket.IO.** It allows multiple users to join a room, type messages, and interact in real-time.
 
 ### Features
 - Multiplayer Typing Game
