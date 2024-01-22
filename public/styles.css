@@ -714,7 +714,7 @@ body {
     bottom: 5vh;
     position: fixed;
     display: block;
-    color: #00a76a;
+    color: #00c57d;
 
     font-family: 'Arvo', serif;
 
@@ -723,7 +723,7 @@ body {
 
 .info-mark a{
     font-weight: bold;
-    color: #23ffae;
+    color: #87ff99;
     font-weight: 400;
     text-decoration: none;
 }

@@ -10,9 +10,9 @@ const { log, count } = require("console");
 const colog = require('colog');
 
 const server = http.createServer(app);
-const io = new Server(server);
-            const SEC_GAME_DURATION = 100;
+const io = require('socket.io')(server);
 
+const SEC_GAME_DURATION = 100;
 const PORT = process.env.PORT || 3000;
 const GAME_DURATION_IN_SECOND = 100;
 
@@ -53,7 +53,7 @@ io.on('connection', (socket) => {
 
       colog.log(colog.color('--- CONNECTED NEW SOCKET: ', 'green') + colog.color(socket.id, 'yellow'));
 
-      io.emit("newUserJoined", socket.id);  
+      socket.emit("newUserJoined", socket.id);
 
       //* A Player requested to join the ROOM with a specific roomID
       socket.on('joinMatch', (playerRoomData) => {
@@ -128,15 +128,14 @@ io.on('connection', (socket) => {
             };
 
 
-            colog.progress(0, GAME_DURATION_IN_SECOND, "asd");
+            // colog.progress(0, GAME_DURATION_IN_SECOND, "asd");
 
             const startedGameCountdownCounter = async (io, room_id, duration) => {
               
                   const countdown = async (count) => {
                       if (count >= 0) {
 
-                          // console.log("Timer:", count);
-                          colog.progress();
+                          // colog.progress();
 
                           const gameRoomLiveUpdateDataJson = {
                               "time": count, 
