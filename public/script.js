@@ -252,13 +252,11 @@ function appendLivePlayerBox(rank, name, avatar_img_link, score){
 // Event listener for keydown
 document.addEventListener('keydown', function (event) {
 
-    if(isStarted === false){
+    if(isMultiplayer === false && isStarted === false){
+        startCountdown(numberOfSecondToCompete);
         isStarted = true;
     }
 
-    if(isMultiplayer === false){
-        startCountdown(numberOfSecondToCompete);
-    }
 
     const firstCharacter = un_typedTextElement.textContent.charAt(0);
 
@@ -408,10 +406,10 @@ function setTimerText(timeleft) {
         // Change text color to red and 
         countdownElement.style.color = "#f00";
         // tick_2x_sound.play();
-    } else if (timeleft == 10) {
+    } else if (timeleft <= 10) {
         // Change text color to yellow and 
         countdownElement.style.color = "#fcd703";
-        // tick_2x_sound.play();
+        tick_sound.play();
     } else {
         // tick_sound.play();
     }
